@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <errno.h>
+#include <string.h>
 
 void usage()
 {
@@ -78,5 +82,24 @@ int main(int argc, char *argv[])
         usage();
     }
 
+    if(level-- > 0 )
+    {
+        char** environ;
+        for(int i = 0 ; i < numOfChildren ; i++)
+        {
+            if(fork()==0)
+            {
+                char * newArgs;
+                sprintf(newArgs,"-%d --poziom==%d --ppid=%s,%d",(numOfChildren==2)?3:2,level,ppids,getpid());
+                printf("new args: %s\n",newArgs);
+                printf("Jestem dzidzius\n");
+                if(execvp(argv[0],argv)==-1)
+                {
+                    printf("Zjebło się ;c numer:%d\n", errno);
+                }
+                break;
+            }
+        }
+    }
     return 0;
 }
