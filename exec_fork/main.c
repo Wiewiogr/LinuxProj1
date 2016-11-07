@@ -65,20 +65,26 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (optind < argc) 
+    if (numOfChildren == 0 || optind < argc) 
         error = 1;
 
-    if(level != 0 && numOfChildren != 0)
-    {
-        printf("Number of Children : %d\nLevel : %d\n",numOfChildren, level);
-        if(strlen(ppids) != 0)
-            printf("ppids : %s\n",ppids);
-    }
-    else
-        error = 1;
+    if(level == 0)
+        printf("ppids : %s\n",ppids);
+
+   // if(level != 0 && numOfChildren != 0)
+   // {
+   //     printf("Number of Children : %d\nLevel : %d\n",numOfChildren, level);
+   //     if(strlen(ppids) != 0)
+   //         printf("ppids : %s\n",ppids);
+   // }
+
     if(error)
     {
         printf("Wrong Usage, should be:\n");
+        for(int i = 0; i < argc ; i++)
+        {
+            printf("%s\n",argv[i]);
+        }
         usage();
     }
 
@@ -89,11 +95,19 @@ int main(int argc, char *argv[])
         {
             if(fork()==0)
             {
-                char * newArgs;
-                sprintf(newArgs,"-%d --poziom==%d --ppid=%s,%d",(numOfChildren==2)?3:2,level,ppids,getpid());
-                printf("new args: %s\n",newArgs);
-                printf("Jestem dzidzius\n");
-                if(execvp(argv[0],argv)==-1)
+                char newLevel[15];
+                char newPpid[100];
+                sprintf(newLevel,"--poziom=%d",level);
+                sprintf(newPpid,"--ppid=%s,%d",ppids,getpid());
+                char * newArgs[] =
+                {
+                    argv[0],
+                    (numOfChildren==2)?"-3":"-2",
+                    newLevel,
+                    newPpid,
+                    (char *) 0
+                };
+                if(execvp(argv[0],newArgs)==-1)
                 {
                     printf("Zjebło się ;c numer:%d\n", errno);
                 }
