@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <signal.h>
+#include <unistd.h>
+#include <string.h>
 #include <stdlib.h>
 #include <getopt.h>
 
@@ -11,7 +14,9 @@ main(int argc, char **argv)
         printf("Too few arguments...\n");
         exit(1);
     }
-
+    int signal;
+    float time;
+    int sibling;
     while (1)
     {
         int option_index = 0;
@@ -29,14 +34,26 @@ main(int argc, char **argv)
 
         switch (c) {
         case 'k':
-            printf("kill : %s\n",optarg);
+            if(!strcmp(optarg,"STOP"))
+                signal = SIGSTOP;
+            else if(!strcmp(optarg,"TSTP"))
+                signal = SIGTSTP;
+            else if(!strcmp(optarg,"TTIN"))
+                signal = SIGTTIN;
+            else if(!strcmp(optarg,"TTOU"))
+                signal = SIGTTOU;
+            printf("kill : %d\n",signal);
             break;
         case 't':
+            time = strtof(optarg,NULL);
             printf("tout : %s\n",optarg);
             break;
         case 's':
-            printf("sibling : %s\n",optarg);
+            sibling = atoi(optarg);//strtol(optarg,NULL,1);
+            printf("sibling : %d\n",getpid());
             break;
         }
     }
+    while(1)
+        pause();
 }
