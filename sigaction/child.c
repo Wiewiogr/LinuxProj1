@@ -1,22 +1,43 @@
 #include <stdio.h>
+#include <time.h>
+#include <ctype.h>
+#include <sys/time.h>
 #include <signal.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 #include <getopt.h>
 
-int
-main(int argc, char **argv)
+int signalNum;
+float tout;
+int sibling;
+
+void timerAlarm(int _, siginfo_t * info,void * context)
 {
+    printf("I'm %d and i'm alive!\n", getpid());
+}
+
+void sendSignals(int _, siginfo_t * info,void * context)
+{
+    kill(sibling,signalNum);
+    struct timespec ts = {tolower(tout),(int)((tout-tolower(tout))*1000000000)};
+    nanosleep(&ts,NULL);
+    kill(sibling,SIGCONT);
+}
+
+int main(int argc, char **argv)
+{
+    struct sigaction sa;
+    sa.sa_sigaction = timerAlarm;
+    sa.sa_flags = SA_SIGINFO;
+    sigaction (SIGALRM, &sa, NULL);
+
     int c;
     if(argc < 4)
     {
         printf("Too few arguments...\n");
         exit(1);
     }
-    int signal;
-    float time;
-    int sibling;
     while (1)
     {
         int option_index = 0;
@@ -35,17 +56,17 @@ main(int argc, char **argv)
         switch (c) {
         case 'k':
             if(!strcmp(optarg,"STOP"))
-                signal = SIGSTOP;
+                signalNum = SIGSTOP;
             else if(!strcmp(optarg,"TSTP"))
-                signal = SIGTSTP;
+                signalNum = SIGTSTP;
             else if(!strcmp(optarg,"TTIN"))
-                signal = SIGTTIN;
+                signalNum = SIGTTIN;
             else if(!strcmp(optarg,"TTOU"))
-                signal = SIGTTOU;
-            printf("kill : %d\n",signal);
+                signalNum = SIGTTOU;
+            printf("kill : %d\n",signalNum);
             break;
         case 't':
-            time = strtof(optarg,NULL);
+            tout = strtof(optarg,NULL);
             printf("tout : %s\n",optarg);
             break;
         case 's':
@@ -54,6 +75,12 @@ main(int argc, char **argv)
             break;
         }
     }
+    struct itimerval it_val;
+    it_val.it_value.tv_sec = tolower(tout);
+    it_val.it_value.tv_usec = (int)((tout-tolower(tout))*1000000);//tout - tolower(tout);
+    it_val.it_interval = it_val.it_value;
+
+    setitimer(ITIMER_REAL, &it_val, NULL);
     while(1)
         pause();
 }
