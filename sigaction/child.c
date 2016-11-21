@@ -14,11 +14,12 @@ int sibling;
 
 void timerAlarm(int _, siginfo_t * info,void * context)
 {
-    printf("I'm %d and i'm alive!\n", getpid());
+    printf("I'm %d, my sibling is %d and i'm alive!\n", getpid(), sibling);
 }
 
 void sendSignals(int _, siginfo_t * info,void * context)
 {
+    printf("I'm %d and i've sent a signal to %d\n", getpid(),sibling);
     kill(sibling,signalNum);
     struct timespec ts = {tolower(tout),(int)((tout-tolower(tout))*1000000000)};
     nanosleep(&ts,NULL);
@@ -31,6 +32,9 @@ int main(int argc, char **argv)
     sa.sa_sigaction = timerAlarm;
     sa.sa_flags = SA_SIGINFO;
     sigaction (SIGALRM, &sa, NULL);
+    sa.sa_sigaction = sendSignals;
+    sa.sa_flags = SA_SIGINFO;
+    sigaction (SIGCONT, &sa, NULL);
 
     int c;
     if(argc < 4)
@@ -63,15 +67,12 @@ int main(int argc, char **argv)
                 signalNum = SIGTTIN;
             else if(!strcmp(optarg,"TTOU"))
                 signalNum = SIGTTOU;
-            printf("kill : %d\n",signalNum);
             break;
         case 't':
             tout = strtof(optarg,NULL);
-            printf("tout : %s\n",optarg);
             break;
         case 's':
             sibling = atoi(optarg);//strtol(optarg,NULL,1);
-            printf("sibling : %d\n",getpid());
             break;
         }
     }

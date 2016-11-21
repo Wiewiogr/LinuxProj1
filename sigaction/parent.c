@@ -66,20 +66,20 @@ int main(int argc, char* argv[])
         if((id = fork()) == 0)
         {
             char* signal = NULL;
-            printf("arg : %s\n", argv[i+1]);
+            //printf("arg : %s\n", argv[i+1]);
             float time = strtof(argv[i+1], &signal);
-            printf("Value : %lf, rest : %s \n", time, signal);
+            //printf("Value : %lf, rest : %s \n", time, signal);
             char killArg[20];
             char toutArg[20];
             char siblingArg[20];
             sprintf(killArg,"--kill=%s",signal);
             sprintf(toutArg,"--tout=%lf",time);
             int pid;
-            if(i == 1)
+            if(i == 0)
                 pid = getpid();
             else
                 pid = children[i-1].pid;
-            sprintf(siblingArg,"--sibling=%d",getpid());
+            sprintf(siblingArg,"--sibling=%d",pid);
             char * newArgs[] =
             {
                 "child.o",
@@ -96,7 +96,6 @@ int main(int argc, char* argv[])
         }
         else
         {
-            printf("checkpoint");
             children[i].pid = id;
             children[i].isAlive = true;
         }
