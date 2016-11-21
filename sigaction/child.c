@@ -14,7 +14,15 @@ int sibling;
 
 void timerAlarm(int _, siginfo_t * info,void * context)
 {
-    printf("I'm %d, my sibling is %d and i'm alive!\n", getpid(), sibling);
+    printf("I'm %d, my sibling is %d", getpid(), sibling);
+    if(signalNum == SIGSTOP)
+        printf(" and my signal is SIGSTOP\n");
+    else if(signalNum == SIGTSTP)
+        printf(" and my signal is SIGTSTP\n");
+    else if(signalNum == SIGTTIN)
+        printf(" and my signal is SIGTTIN\n");
+    else if(signalNum == SIGTTOU)
+        printf(" and my signal is SIGTTOU\n");
 }
 
 void sendSignals(int _, siginfo_t * info,void * context)
@@ -72,13 +80,13 @@ int main(int argc, char **argv)
             tout = strtof(optarg,NULL);
             break;
         case 's':
-            sibling = atoi(optarg);//strtol(optarg,NULL,1);
+            sibling = atoi(optarg);
             break;
         }
     }
     struct itimerval it_val;
     it_val.it_value.tv_sec = tolower(tout);
-    it_val.it_value.tv_usec = (int)((tout-tolower(tout))*1000000);//tout - tolower(tout);
+    it_val.it_value.tv_usec = (int)((tout-tolower(tout))*1000000);
     it_val.it_interval = it_val.it_value;
 
     setitimer(ITIMER_REAL, &it_val, NULL);

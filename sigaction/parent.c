@@ -26,10 +26,13 @@ void childSignal(int _, siginfo_t * info,void * context)
                 children[i].isAlive = false;
                 break;
             }
+
         for(; i < numOfChildren;i++)
         {
             kill(children[i].pid,SIGKILL);
         }
+        if(!children[0].isAlive)
+            exit(0);
     }
     else if(code == CLD_EXITED)
     {
@@ -66,9 +69,7 @@ int main(int argc, char* argv[])
         if((id = fork()) == 0)
         {
             char* signal = NULL;
-            //printf("arg : %s\n", argv[i+1]);
             float time = strtof(argv[i+1], &signal);
-            //printf("Value : %lf, rest : %s \n", time, signal);
             char killArg[20];
             char toutArg[20];
             char siblingArg[20];
@@ -100,7 +101,8 @@ int main(int argc, char* argv[])
             children[i].isAlive = true;
         }
     }
-    while(1);
+    while(1)
+        pause();
     free(children);
     return 0;
 }
