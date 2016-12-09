@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
     struct sibling* siblings = (struct sibling*)malloc(count* sizeof(struct sibling));
     for(int i = 0; i < count;i++)
     {
+        sleep(1);
         if(pipe(&siblings[i].pipeDescriptor))
         {
             perror("pipe()");
@@ -60,11 +61,12 @@ int main(int argc, char *argv[])
         }
         else
         {
+            close(siblings[i].pipeDescriptor[0]);
             char timeArg[20];
             char stringArg[20] = {"-sskjvkjxchvkj"};
             char descriptorArg[20];
-            sprintf(timeArg,"-t%lf",(rand()/RAND_MAX)*3/4*time);
-            sprintf(descriptorArg,"-d%d",siblings[i].pipeDescriptor[0]);
+            sprintf(timeArg,"-t%lf",(1.0*rand()/RAND_MAX)*3.0/4.0*time);
+            sprintf(descriptorArg,"-d%d",siblings[i].pipeDescriptor[1]);
             char * newArgs[] =
             {
             "./prg1.o",
@@ -80,4 +82,28 @@ int main(int argc, char *argv[])
             }
         }
     }
+    int siblingsAlive = count;
+
+    char buffer[25];
+    int size;
+    while(1)
+    {
+        printf("pentla\n");
+        nanosleep(&waitTime,NULL);
+        for(int i = 0 ; i < count;i++)
+        {
+            if(siblings[i].isAlive)
+            {
+                size = read(siblings[i].pipeDescriptor[0],buffer,25);
+                if(size == -1)
+                {
+                    perror("read()");
+                }
+                siblings[i].bytesRead += size;
+                printf("from pid %d read %s\n",siblings[i].pid,buffer);
+            }
+        }
+    }
+
+
 }

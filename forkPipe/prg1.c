@@ -37,20 +37,22 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    printf("time : %lf , string : %s , fd : %f\n",time, string, descriptor);
+    printf("time : %lf , string : %s , fd : %d\n",time, string, descriptor);
 
     while(1)
     {
+        nanosleep(&waitTime,NULL);
         if(write(descriptor,string,strlen(string)) == -1)
         {
             perror("write");
             return 1;
         }
-        if((rand()/RAND_MAX) > 0.5)
+        float choice = (1.0*rand()/RAND_MAX);
+        printf("choice : %lf\n",choice);
+        if(choice > 0.5)
         {
             printf("child with pid : %d exited!!\n",getpid());
             return 1;
         }
-        nanosleep(&waitTime,NULL);
     }
 }
