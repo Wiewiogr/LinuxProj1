@@ -3,14 +3,14 @@ import itertools
 def minimalizator(fun,funArg):
     minValue = None
     iterations = []
-    for currentIteration in itertools.permutations(funArg):
-        result = fun(currentIteration[0],currentIteration[1],currentIteration[2])
-        print "fun(",currentIteration,") =", result
+    for curPermutation in itertools.permutations(funArg):
+        result = fun(curPermutation[0],curPermutation[1],curPermutation[2])
+        print "fun(",curPermutation,") =", result
         if minValue == None or result < minValue:
-            iterations = [currentIteration]
+            iterations = [curPermutation]
             minValue = result
         elif minValue == result:
-            iterations.append(currentIteration)
+            iterations.append(curPermutation)
     return iterations
 
 
